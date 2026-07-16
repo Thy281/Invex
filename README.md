@@ -1,3 +1,6 @@
+> **🌐 Language / Idioma**
+> [🇺🇸 English](./README.md) · [🇧🇷 Português](./README.pt.md)
+
 # Invex — Real-Time Inventory Management System
 
 A modern, scalable inventory management platform with real-time updates via WebSocket, built with Go + React.
