@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Save } from 'lucide-react'
 import { useProduct, useCreateProduct, useUpdateProduct } from '@/hooks/api/useProducts'
@@ -8,6 +9,7 @@ import { showToast } from '@/components/ui/Toast'
 import type { ProductForm } from '@/types/product'
 
 export default function ProductFormPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
   const isEdit = !!id
@@ -57,14 +59,14 @@ export default function ProductFormPage() {
     try {
       if (isEdit) {
         await updateMutation.mutateAsync(form)
-        showToast('success', 'Product updated successfully')
+        showToast('success', t('products.title') + ' ' + t('common.updated'))
       } else {
         await createMutation.mutateAsync(form)
-        showToast('success', 'Product created successfully')
+        showToast('success', t('products.title') + ' ' + t('common.created'))
       }
       navigate('/products')
     } catch {
-      showToast('error', `Failed to ${isEdit ? 'update' : 'create'} product`)
+      showToast('error', t('common.failedToSave') + ' ' + t('products.title').toLowerCase())
     }
   }
 
@@ -80,15 +82,15 @@ export default function ProductFormPage() {
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{isEdit ? 'Edit Product' : 'New Product'}</h1>
-          <p className="text-sm text-gray-500">{isEdit ? 'Update product details' : 'Add a new product to catalog'}</p>
+          <h1 className="text-2xl font-bold text-gray-900">{isEdit ? t('products.editProduct') : t('products.newProduct')}</h1>
+          <p className="text-sm text-gray-500">{isEdit ? t('products.editProductSub') : t('products.newProductSub')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-gray-200 bg-white p-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Name *</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.name')} *</label>
             <input
               required
               value={form.name}
@@ -98,7 +100,7 @@ export default function ProductFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">SKU *</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.sku')} *</label>
             <input
               required
               value={form.sku}
@@ -108,7 +110,7 @@ export default function ProductFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Internal Code</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.internalCode')}</label>
             <input
               value={form.internal_code}
               onChange={(e) => setForm({ ...form, internal_code: e.target.value })}
@@ -117,7 +119,7 @@ export default function ProductFormPage() {
           </div>
 
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.description')}</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -127,14 +129,14 @@ export default function ProductFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Category *</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.category')} *</label>
             <select
               required
               value={form.category_id}
               onChange={(e) => setForm({ ...form, category_id: e.target.value })}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             >
-              <option value="">Select...</option>
+              <option value="">{t('common.select')}</option>
               {categories.map((cat: any) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
@@ -142,26 +144,26 @@ export default function ProductFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Unit of Measure *</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.unitOfMeasure')} *</label>
             <select
               required
               value={form.unit_of_measure}
               onChange={(e) => setForm({ ...form, unit_of_measure: e.target.value })}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             >
-              <option value="unit">Unit</option>
-              <option value="kg">Kilogram</option>
-              <option value="g">Gram</option>
-              <option value="l">Liter</option>
-              <option value="ml">Milliliter</option>
-              <option value="m">Meter</option>
-              <option value="box">Box</option>
-              <option value="pallet">Pallet</option>
+              <option value="unit">{t('products.units.unit')}</option>
+              <option value="kg">{t('products.units.kg')}</option>
+              <option value="g">{t('products.units.g')}</option>
+              <option value="l">{t('products.units.l')}</option>
+              <option value="ml">{t('products.units.ml')}</option>
+              <option value="m">{t('products.units.m')}</option>
+              <option value="box">{t('products.units.box')}</option>
+              <option value="pallet">{t('products.units.pallet')}</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Min Stock</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.minStock')}</label>
             <input
               type="number"
               step="0.001"
@@ -172,7 +174,7 @@ export default function ProductFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Reorder Point</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.reorder')}</label>
             <input
               type="number"
               step="0.001"
@@ -183,7 +185,7 @@ export default function ProductFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Max Stock</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.maxStock')}</label>
             <input
               type="number"
               step="0.001"
@@ -194,7 +196,7 @@ export default function ProductFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Unit Cost</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.unitCost')}</label>
             <input
               type="number"
               step="0.01"
@@ -205,13 +207,13 @@ export default function ProductFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Primary Supplier</label>
+            <label className="block text-sm font-medium text-gray-700">{t('products.primarySupplier')}</label>
             <select
               value={form.primary_supplier_id || ''}
               onChange={(e) => setForm({ ...form, primary_supplier_id: e.target.value || undefined })}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             >
-              <option value="">None</option>
+              <option value="">{t('common.none')}</option>
               {suppliers.map((s: any) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
@@ -226,7 +228,7 @@ export default function ProductFormPage() {
                 onChange={(e) => setForm({ ...form, active: e.target.checked })}
                 className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
-              Active
+              {t('common.active')}
             </label>
           </div>
         </div>
@@ -237,7 +239,7 @@ export default function ProductFormPage() {
             onClick={() => navigate('/products')}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="submit"
@@ -245,7 +247,7 @@ export default function ProductFormPage() {
             className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </form>

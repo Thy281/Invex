@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import DataTable from '@/components/ui/DataTable'
 import Modal from '@/components/ui/Modal'
@@ -11,6 +12,7 @@ import type { Supplier } from '@/types'
 const emptyForm = { name: '', tax_id: '', email: '', phone: '', address: '', contact_person: '', active: true }
 
 export default function SuppliersPage() {
+  const { t } = useTranslation()
   const user = useAuthStore((s) => s.user)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -50,14 +52,14 @@ export default function SuppliersPage() {
     try {
       if (editId) {
         await updateMut.mutateAsync(form)
-        showToast('success', 'Supplier updated')
+        showToast('success', t('suppliers.title') + ' ' + t('common.updated'))
       } else {
         await createMut.mutateAsync(form)
-        showToast('success', 'Supplier created')
+        showToast('success', t('suppliers.title') + ' ' + t('common.created'))
       }
       setModalOpen(false)
     } catch {
-      showToast('error', 'Failed to save supplier')
+      showToast('error', t('common.failedToSave') + ' ' + t('suppliers.title').toLowerCase())
     }
   }
 
@@ -66,26 +68,26 @@ export default function SuppliersPage() {
     try {
       await deleteMut.mutateAsync(deleteId)
       setDeleteId(null)
-      showToast('success', 'Supplier deleted')
+      showToast('success', t('suppliers.title') + ' ' + t('common.deleted'))
     } catch {
-      showToast('error', 'Failed to delete supplier')
+      showToast('error', t('common.failedToDelete') + ' ' + t('suppliers.title').toLowerCase())
     }
   }
 
   const columns = [
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'tax_id', label: 'Tax ID' },
-    { key: 'email', label: 'Email' },
-    { key: 'phone', label: 'Phone' },
-    { key: 'contact_person', label: 'Contact' },
+    { key: 'name', label: t('suppliers.name'), sortable: true },
+    { key: 'tax_id', label: t('suppliers.taxId') },
+    { key: 'email', label: t('suppliers.email') },
+    { key: 'phone', label: t('suppliers.phone') },
+    { key: 'contact_person', label: t('suppliers.contact') },
     {
       key: 'active',
-      label: 'Status',
+      label: t('suppliers.status'),
       render: (row: Supplier) => (
         <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
           row.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
         }`}>
-          {row.active ? 'Active' : 'Inactive'}
+          {row.active ? t('common.active') : t('common.inactive')}
         </span>
       ),
     },
@@ -111,12 +113,12 @@ export default function SuppliersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Suppliers</h1>
-          <p className="text-sm text-gray-500">Manage suppliers and vendors</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('suppliers.title')}</h1>
+          <p className="text-sm text-gray-500">{t('suppliers.subtitle')}</p>
         </div>
         {canEdit && (
           <button onClick={openCreate} className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">
-            <Plus className="h-4 w-4" /> New Supplier
+            <Plus className="h-4 w-4" /> {t('suppliers.newSupplier')}
           </button>
         )}
       </div>
@@ -124,57 +126,57 @@ export default function SuppliersPage() {
       <DataTable columns={columns} data={data?.data ?? []} total={data?.total ?? 0}
         page={page} onPageChange={setPage} onSearch={setSearch} loading={isLoading} />
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editId ? 'Edit Supplier' : 'New Supplier'}>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editId ? t('suppliers.editSupplier') : t('suppliers.newSupplier')}>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Name *</label>
+            <label className="block text-sm font-medium text-gray-700">{t('suppliers.name')} *</label>
             <input required value={form.name} onChange={(e) => setForm({...form, name: e.target.value})}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Tax ID *</label>
+            <label className="block text-sm font-medium text-gray-700">{t('suppliers.taxId')} *</label>
             <input required value={form.tax_id} onChange={(e) => setForm({...form, tax_id: e.target.value})}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <label className="block text-sm font-medium text-gray-700">{t('suppliers.email')}</label>
               <input type="email" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})}
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Phone</label>
+              <label className="block text-sm font-medium text-gray-700">{t('suppliers.phone')}</label>
               <input value={form.phone} onChange={(e) => setForm({...form, phone: e.target.value})}
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Address</label>
+            <label className="block text-sm font-medium text-gray-700">{t('suppliers.address')}</label>
             <textarea value={form.address} onChange={(e) => setForm({...form, address: e.target.value})} rows={2}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Contact Person</label>
+            <label className="block text-sm font-medium text-gray-700">{t('suppliers.contactPerson')}</label>
             <input value={form.contact_person} onChange={(e) => setForm({...form, contact_person: e.target.value})}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500" />
           </div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <input type="checkbox" checked={form.active} onChange={(e) => setForm({...form, active: e.target.checked})}
               className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-            Active
+            {t('common.active')}
           </label>
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <button onClick={() => setModalOpen(false)} className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50">Cancel</button>
+            <button onClick={() => setModalOpen(false)} className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50">{t('common.cancel')}</button>
             <button onClick={handleSave} disabled={createMut.isPending || updateMut.isPending}
               className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50">
-              Save
+              {t('common.save')}
             </button>
           </div>
         </div>
       </Modal>
 
       <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete}
-        title="Delete Supplier" message="Are you sure? This action cannot be undone."
+        title={t('suppliers.deleteTitle')} message={t('suppliers.deleteMessage')}
         loading={deleteMut.isPending} />
     </div>
   )
