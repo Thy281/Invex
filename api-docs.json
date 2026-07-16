@@ -1,0 +1,346 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Invex API",
+    "description": "Real-Time Inventory Management System API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "http://localhost:8080/api", "description": "Local development" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email", "example": "admin@invex.com" },
+          "password": { "type": "string", "format": "password", "example": "admin123" }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": { "type": "string" },
+          "refresh_token": { "type": "string" },
+          "user": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "role_id": { "type": "string", "format": "uuid" },
+          "role": { "type": "string" },
+          "active": { "type": "boolean" }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "sku": { "type": "string" },
+          "internal_code": { "type": "string" },
+          "description": { "type": "string" },
+          "category_id": { "type": "string", "format": "uuid" },
+          "category": { "$ref": "#/components/schemas/Category" },
+          "unit_of_measure": { "type": "string" },
+          "min_stock": { "type": "number" },
+          "reorder_point": { "type": "number" },
+          "max_stock": { "type": "number" },
+          "unit_cost": { "type": "number" },
+          "primary_supplier_id": { "type": "string", "format": "uuid" },
+          "active": { "type": "boolean" },
+          "ean": { "type": "string" },
+          "upc": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateProductRequest": {
+        "type": "object",
+        "required": ["name", "sku", "category_id", "unit_of_measure"],
+        "properties": {
+          "name": { "type": "string" },
+          "sku": { "type": "string" },
+          "internal_code": { "type": "string" },
+          "description": { "type": "string" },
+          "category_id": { "type": "string", "format": "uuid" },
+          "unit_of_measure": { "type": "string", "enum": ["unit","kg","g","l","ml","m","box","pallet"] },
+          "min_stock": { "type": "number", "default": 0 },
+          "reorder_point": { "type": "number", "default": 0 },
+          "max_stock": { "type": "number", "default": 0 },
+          "unit_cost": { "type": "number", "default": 0 },
+          "primary_supplier_id": { "type": "string", "format": "uuid" },
+          "active": { "type": "boolean", "default": true }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "active": { "type": "boolean" }
+        }
+      },
+      "Supplier": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "tax_id": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "address": { "type": "string" },
+          "contact_person": { "type": "string" },
+          "active": { "type": "boolean" }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "code": { "type": "string" },
+          "address": { "type": "string" },
+          "active": { "type": "boolean" }
+        }
+      },
+      "StockInRequest": {
+        "type": "object",
+        "required": ["product_id","location_id","quantity","reason"],
+        "properties": {
+          "product_id": { "type": "string", "format": "uuid" },
+          "location_id": { "type": "string", "format": "uuid" },
+          "quantity": { "type": "number", "exclusiveMinimum": 0 },
+          "reason": { "type": "string" }
+        }
+      },
+      "StockOutRequest": {
+        "type": "object",
+        "required": ["product_id","location_id","quantity","reason"],
+        "properties": {
+          "product_id": { "type": "string", "format": "uuid" },
+          "location_id": { "type": "string", "format": "uuid" },
+          "quantity": { "type": "number", "exclusiveMinimum": 0 },
+          "reason": { "type": "string" }
+        }
+      },
+      "TransferRequest": {
+        "type": "object",
+        "required": ["product_id","from_location_id","to_location_id","quantity","reason"],
+        "properties": {
+          "product_id": { "type": "string", "format": "uuid" },
+          "from_location_id": { "type": "string", "format": "uuid" },
+          "to_location_id": { "type": "string", "format": "uuid" },
+          "quantity": { "type": "number", "exclusiveMinimum": 0 },
+          "reason": { "type": "string" }
+        }
+      },
+      "AdjustmentRequest": {
+        "type": "object",
+        "required": ["product_id","location_id","new_quantity","reason"],
+        "properties": {
+          "product_id": { "type": "string", "format": "uuid" },
+          "location_id": { "type": "string", "format": "uuid" },
+          "new_quantity": { "type": "number" },
+          "reason": { "type": "string" }
+        }
+      },
+      "StockMovement": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "type": { "type": "string", "enum": ["in","out","transfer","adjustment"] },
+          "product_id": { "type": "string", "format": "uuid" },
+          "product_name": { "type": "string" },
+          "from_location_name": { "type": "string" },
+          "to_location_name": { "type": "string" },
+          "quantity": { "type": "number" },
+          "reason": { "type": "string" },
+          "user_name": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Dashboard": {
+        "type": "object",
+        "properties": {
+          "total_products": { "type": "integer" },
+          "low_stock_count": { "type": "integer" },
+          "out_of_stock_count": { "type": "integer" },
+          "inventory_value": { "type": "number" },
+          "pending_pos": { "type": "integer" },
+          "recent_movements": { "type": "array", "items": { "$ref": "#/components/schemas/StockMovement" } },
+          "recent_alerts": { "type": "array", "items": { "type": "object" } }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  },
+  "security": [{ "BearerAuth": [] }],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Login successful", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } } } },
+          "401": { "description": "Invalid credentials", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Current user",
+        "responses": {
+          "200": { "description": "User info", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "List products",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "per_page", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Paginated product list" }
+        }
+      },
+      "post": {
+        "tags": ["Products"],
+        "summary": "Create product",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateProductRequest" } } }
+        },
+        "responses": {
+          "201": { "description": "Product created" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get product",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": { "description": "Product details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Product" } } } },
+          "404": { "description": "Not found" }
+        }
+      },
+      "put": {
+        "tags": ["Products"],
+        "summary": "Update product",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateProductRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Product updated" }
+        }
+      },
+      "delete": {
+        "tags": ["Products"],
+        "summary": "Delete product (soft)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "204": { "description": "Deleted" }
+        }
+      }
+    },
+    "/categories": {
+      "get": { "tags": ["Categories"], "summary": "List categories", "responses": { "200": { "description": "Categories" } } },
+      "post": { "tags": ["Categories"], "summary": "Create category" }
+    },
+    "/suppliers": {
+      "get": { "tags": ["Suppliers"], "summary": "List suppliers", "responses": { "200": { "description": "Suppliers" } } },
+      "post": { "tags": ["Suppliers"], "summary": "Create supplier" }
+    },
+    "/locations": {
+      "get": { "tags": ["Locations"], "summary": "List locations", "responses": { "200": { "description": "Locations" } } },
+      "post": { "tags": ["Locations"], "summary": "Create location" }
+    },
+    "/inventory": {
+      "get": {
+        "tags": ["Inventory"],
+        "summary": "List inventory",
+        "parameters": [
+          { "name": "view", "in": "query", "schema": { "type": "string", "enum": ["consolidated","by-location"], "default": "consolidated" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "per_page", "in": "query", "schema": { "type": "integer", "default": 20 } }
+        ],
+        "responses": { "200": { "description": "Inventory data" } }
+      }
+    },
+    "/movements/in": {
+      "post": {
+        "tags": ["Movements"],
+        "summary": "Stock In",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StockInRequest" } } } },
+        "responses": { "201": { "description": "Movement recorded" } }
+      }
+    },
+    "/movements/out": {
+      "post": {
+        "tags": ["Movements"],
+        "summary": "Stock Out",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StockOutRequest" } } } },
+        "responses": { "201": { "description": "Movement recorded" } }
+      }
+    },
+    "/movements/transfer": {
+      "post": {
+        "tags": ["Movements"],
+        "summary": "Transfer between locations",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TransferRequest" } } } },
+        "responses": { "201": { "description": "Transfer recorded" } }
+      }
+    },
+    "/movements/adjust": {
+      "post": {
+        "tags": ["Movements"],
+        "summary": "Manual inventory adjustment",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdjustmentRequest" } } } },
+        "responses": { "201": { "description": "Adjustment recorded" } }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Dashboard widget data",
+        "responses": {
+          "200": { "description": "Dashboard data", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Dashboard" } } } }
+        }
+      }
+    }
+  }
+}
