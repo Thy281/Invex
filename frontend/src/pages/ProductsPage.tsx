@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Pencil, Trash2, Package } from 'lucide-react'
 import DataTable from '@/components/ui/DataTable'
@@ -11,6 +12,7 @@ import type { Product } from '@/types'
 export default function ProductsPage() {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -24,37 +26,37 @@ export default function ProductsPage() {
     if (!deleteId) return
     try {
       await deleteMutation.mutateAsync(deleteId)
-      showToast('success', 'Product deleted successfully')
+      showToast('success', t('products.title') + ' ' + t('common.deleted'))
       setDeleteId(null)
     } catch {
-      showToast('error', 'Failed to delete product')
+      showToast('error', t('common.failedToDelete') + ' ' + t('products.title').toLowerCase())
     }
   }
 
   const columns = [
-    { key: 'sku', label: 'SKU', sortable: true },
-    { key: 'name', label: 'Name', sortable: true },
+    { key: 'sku', label: t('products.sku'), sortable: true },
+    { key: 'name', label: t('products.name'), sortable: true },
     {
       key: 'category',
-      label: 'Category',
+      label: t('products.category'),
       render: (row: Product) => row.category?.name || '-',
     },
-    { key: 'unit_of_measure', label: 'Unit' },
+    { key: 'unit_of_measure', label: t('products.unit') },
     {
       key: 'unit_cost',
-      label: 'Cost',
+      label: t('products.cost'),
       render: (row: Product) => `$${Number(row.unit_cost).toFixed(2)}`,
     },
-    { key: 'min_stock', label: 'Min Stock' },
-    { key: 'reorder_point', label: 'Reorder' },
+    { key: 'min_stock', label: t('products.minStock') },
+    { key: 'reorder_point', label: t('products.reorder') },
     {
       key: 'active',
-      label: 'Status',
+      label: t('products.status'),
       render: (row: Product) => (
         <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
           row.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
         }`}>
-          {row.active ? 'Active' : 'Inactive'}
+          {row.active ? t('common.active') : t('common.inactive')}
         </span>
       ),
     },
@@ -86,8 +88,8 @@ export default function ProductsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="text-sm text-gray-500">Manage your product catalog</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('products.title')}</h1>
+          <p className="text-sm text-gray-500">{t('products.subtitle')}</p>
         </div>
         {canEdit && (
           <button
@@ -95,7 +97,7 @@ export default function ProductsPage() {
             className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
           >
             <Plus className="h-4 w-4" />
-            New Product
+            {t('products.newProduct')}
           </button>
         )}
       </div>
@@ -119,8 +121,8 @@ export default function ProductsPage() {
         open={!!deleteId}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
-        title="Delete Product"
-        message="Are you sure you want to delete this product? This action cannot be undone."
+        title={t('products.deleteTitle')}
+        message={t('products.deleteMessage')}
         loading={deleteMutation.isPending}
       />
     </div>

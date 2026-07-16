@@ -25,6 +25,7 @@ describe('AuthStore', () => {
       email: 'admin@test.com',
       role: 'admin' as const,
       active: true,
+      theme: 'system',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
@@ -44,7 +45,7 @@ describe('AuthStore', () => {
 
   test('logout clears everything', () => {
     useAuthStore.setState({
-      user: { id: '1', name: 'Test', email: 't@t.com', role: 'admin', active: true, created_at: '', updated_at: '' },
+      user: { id: '1', name: 'Test', email: 't@t.com', role: 'admin', active: true, theme: 'system', created_at: '', updated_at: '' },
       accessToken: 'token',
       refreshToken: 'refresh',
       isAuthenticated: true,
@@ -60,7 +61,7 @@ describe('AuthStore', () => {
   })
 
   test('setUser updates user', () => {
-    const user = { id: '1', name: 'Test', email: 't@t.com', role: 'manager' as const, active: true, created_at: '', updated_at: '' }
+    const user = { id: '1', name: 'Test', email: 't@t.com', role: 'manager' as const, active: true, theme: 'system', created_at: '', updated_at: '' }
     useAuthStore.getState().setUser(user)
 
     expect(useAuthStore.getState().user).toEqual(user)
