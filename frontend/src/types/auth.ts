@@ -6,6 +6,7 @@ export interface User {
   email: string
   role: Role
   active: boolean
+  theme: string
   created_at: string
   updated_at: string
 }
