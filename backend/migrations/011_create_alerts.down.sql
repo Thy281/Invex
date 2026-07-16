@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS alert_configs;
+DROP TABLE IF EXISTS alerts;
+DROP TYPE IF EXISTS alert_type;
