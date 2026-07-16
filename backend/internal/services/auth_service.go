@@ -58,6 +58,7 @@ func (s *AuthService) Login(req dto.LoginRequest) (*dto.LoginResponse, error) {
 			RoleID: user.RoleID,
 			Role:   user.Role.Name,
 			Active: user.Active,
+			Theme:  user.Theme,
 		},
 	}, nil
 }
@@ -75,5 +76,20 @@ func (s *AuthService) GetUser(userID string) (*dto.UserDTO, error) {
 		RoleID: user.RoleID,
 		Role:   user.Role.Name,
 		Active: user.Active,
+		Theme:  user.Theme,
 	}, nil
+}
+
+func (s *AuthService) UpdateUser(userID string, req dto.UpdateUserRequest) (*dto.UserDTO, error) {
+	updates := map[string]any{}
+	if req.Theme != nil {
+		updates["theme"] = *req.Theme
+	}
+	if len(updates) == 0 {
+		return nil, errors.New("no fields to update")
+	}
+	if err := s.db.Model(&models.User{}).Where("id = ?", userID).Updates(updates).Error; err != nil {
+		return nil, err
+	}
+	return s.GetUser(userID)
 }

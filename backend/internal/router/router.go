@@ -80,6 +80,7 @@ func Setup(cfg *config.Config, db *gorm.DB, rdb *redis.Client, hub *ws.Hub,
 	api.Use(middleware.JWTAuth(cfg.JWTSecret))
 	{
 		api.GET("/auth/me", authH.Me)
+		api.PATCH("/auth/me", authH.UpdateMe)
 
 		// Categories
 		categories := api.Group("/categories")
