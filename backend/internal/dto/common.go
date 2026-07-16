@@ -7,6 +7,7 @@ type UserDTO struct {
 	RoleID string `json:"role_id"`
 	Role   string `json:"role"`
 	Active bool   `json:"active"`
+	Theme  string `json:"theme"`
 }
 
 type PaginationParams struct {
@@ -23,6 +24,10 @@ type PaginatedResponse struct {
 	Page       int         `json:"page"`
 	PerPage    int         `json:"per_page"`
 	TotalPages int         `json:"total_pages"`
+}
+
+type UpdateUserRequest struct {
+	Theme *string `json:"theme"`
 }
 
 type APIError struct {

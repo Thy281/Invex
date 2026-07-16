@@ -14,6 +14,7 @@ type User struct {
 	RoleID    string         `gorm:"type:uuid;not null" json:"role_id"`
 	Role      Role           `gorm:"constraint:OnDelete:RESTRICT" json:"role,omitempty"`
 	Active    bool           `gorm:"default:true" json:"active"`
+	Theme     string         `gorm:"default:system" json:"theme"`
 	CreatedBy *string        `gorm:"type:uuid" json:"created_by,omitempty"`
 	UpdatedBy *string        `gorm:"type:uuid" json:"updated_by,omitempty"`
 	CreatedAt time.Time      `json:"created_at"`

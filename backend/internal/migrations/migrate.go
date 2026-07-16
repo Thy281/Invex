@@ -8,6 +8,26 @@ import (
 )
 
 func Run(db *gorm.DB) error {
+	for _, e := range []struct{ name, values string }{
+		{"movement_type", "'in','out','transfer','adjustment'"},
+		{"po_status", "'draft','pending','approved','sent','received','cancelled'"},
+		{"alert_type", "'low_stock','reorder_point','out_of_stock','po_delayed','suspicious_adjustment'"},
+	} {
+		if err := db.Exec(
+			`DO $do$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = '` + e.name + `') THEN CREATE TYPE ` + e.name + ` AS ENUM (` + e.values + `); END IF; END $do$;`,
+		).Error; err != nil {
+			return fmt.Errorf("create %s enum: %w", e.name, err)
+		}
+	}
+
+	themeDefault := "ALTER TABLE users ADD COLUMN IF NOT EXISTS theme VARCHAR(20) DEFAULT 'system'"
+	if err := db.Exec(themeDefault).Error; err != nil {
+		return fmt.Errorf("add theme column: %w", err)
+	}
+	if err := db.Exec("UPDATE users SET theme = 'system' WHERE theme IS NULL OR theme = ''").Error; err != nil {
+		return fmt.Errorf("set default theme: %w", err)
+	}
+
 	if err := db.AutoMigrate(
 		&models.Role{},
 		&models.User{},
